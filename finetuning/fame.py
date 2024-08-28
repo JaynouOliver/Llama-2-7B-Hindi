@@ -68,7 +68,7 @@ model = get_peft_model(model, peft_config)
 model.print_trainable_parameters()
 
 debug_print("Loading dataset...", YELLOW)
-dataset = load_dataset("zicsx/mC4-Hindi-Cleaned-3.0", split="train[:40%]")
+dataset = load_dataset("zicsx/mC4-Hindi-Cleaned-3.0", split="train[:3%]")
 debug_print("Dataset loaded successfully.", GREEN)
 
 def tokenize_function(examples):
@@ -85,19 +85,19 @@ debug_print("Starting training...", YELLOW)
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR_NAME,
     num_train_epochs=1,
-    per_device_train_batch_size=32,
-    gradient_accumulation_steps=4,
+    per_device_train_batch_size=16,
+    gradient_accumulation_steps=2,
     warmup_steps=500,
     # max_steps=None, #remove entirely or set it to a positive integer when epoch >= 1 
     learning_rate=5e-4,
     fp16=False,
     bf16=True,
-    logging_steps=100,
-    save_steps=5000,
+    logging_steps=50,
+    save_steps=1000,
     save_strategy="steps", 
     save_total_limit=1,
     max_grad_norm=1.0,
-    eval_steps=1000,
+    eval_steps=500,
     report_to="wandb",
     run_name="llama-3-8b-finetuning",
     remove_unused_columns=False,
