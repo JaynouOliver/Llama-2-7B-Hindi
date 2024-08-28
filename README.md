@@ -1,170 +1,207 @@
-Here’s a comprehensive README file that includes all the details you requested:
+# 🚀 Llama-3 Trans-Tokenization and Fine-Tuning Guide
+
+This repository provides a comprehensive guide to trans-tokenization and fine-tuning Llama-3 models. The primary objective is to achieve optimal performance in translating and training large language models (LLMs) across different languages.
 
 ---
 
-# 🚀 Trans-Tokenization and Fine-Tuning with ZenML
+## 📑 Table of Contents
 
-Welcome to the repository where we combine the power of trans-tokenization and fine-tuning to create a highly efficient and multilingual large language model (LLM). This README will guide you through the process of setting up your environment, running the trans-tokenization process, and fine-tuning the model using CNCF tools like ZenML.
-
-## 🎯 Goal
-
-The goal of this repository is to demonstrate how trans-tokenization can be used as a pre-processing step to improve the fine-tuning of LLMs, specifically targeting multilingual models. We will be using the `Meta-Llama-3-8B` model as our base and fine-tuning it for the English-to-Dutch translation task.
-
-## 📜 Table of Contents
-
-- [Introduction to Trans-Tokenization](#introduction-to-trans-tokenization)
-- [Tokenization with SentencePiece and Tiktoken](#tokenization-with-sentencepiece-and-tiktoken)
-- [Setting Up Your Environment](#setting-up-your-environment)
-- [Running Trans-Tokenization](#running-trans-tokenization)
-- [Fine-Tuning with ZenML](#fine-tuning-with-zenml)
-- [Sample Fine-Tuning Script](#sample-fine-tuning-script)
-- [Additional Resources](#additional-resources)
+- [Overview](#overview)
+- [Installation](#installation)
+- [Trans-Tokenization](#trans-tokenization)
+- [Fine-Tuning](#fine-tuning)
+- [Dataset](#dataset)
+- [Time Estimation](#time-estimation)
+- [Supported Tools](#supported-tools)
+- [Understanding Tokenization](#understanding-tokenization)
 - [Contributing](#contributing)
 - [License](#license)
+- [Contact](#contact)
 
-## 📚 Introduction to Trans-Tokenization
+---
 
-Trans-tokenization is a technique that aligns token embeddings between languages, improving the adaptability of LLMs to new languages and reducing performance gaps, especially in low-resource languages. By initializing the target language’s token embeddings with semantically similar embeddings from the source language, we can ensure that the model retains contextual meaning across languages.
+## 📚 Overview
 
-## 🔠 Tokenization with SentencePiece and Tiktoken
+This guide covers:
+1. Setting up the base model and tokenizer.
+2. Implementing trans-tokenization.
+3. Fine-tuning the Llama-3 model.
+4. Understanding tokenization challenges with Latin and non-Latin scripts.
 
-### SentencePiece
-SentencePiece is an unsupervised text tokenizer and detokenizer mainly for Neural Network-based text generation systems. It uses subword units and allows for handling different languages within a single model.
+---
 
-### Tiktoken
-Tiktoken is another tokenizer often used with LLMs like GPT. It handles text as byte-level encoding, making it efficient for handling diverse scripts and languages.
+## 🛠️ Installation
 
-## 🛠️ Setting Up Your Environment
+### Clone the Repository
 
-Before you begin, ensure you have all the necessary dependencies installed. You can do this by running:
 
-```bash
+git clone https://github.com/FremyCompany/fast_align
+mkdir build
+cd build
+cmake ..
+make
+cd .. # return to the original folder
+
+### 2. Create a Conda Environment
+
+```
+conda create -n llama-env python=3.10
+conda activate llama-env
 pip install -r requirements.txt
 ```
 
-Make sure you have the following installed:
+## 🔄 Trans-Tokenization
+To perform trans-tokenization, you will need two key files:
 
-- Python 3.8+
-- PyTorch
-- Transformers (Hugging Face)
-- ZenML
-- Other dependencies listed in `requirements.txt`
+transtokenization.py
+run.py
+Example Setup in run.py:
 
-## 🧑‍💻 Running Trans-Tokenization
-
-Below is a code snippet that demonstrates how to perform trans-tokenization using the `transtokenizers` package:
-
-```python
-from transtokenizers import create_aligned_corpus, align, map_tokens, smooth_mapping, remap_model
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import os
-
+```
 source_model = "meta-llama/Meta-Llama-3-8B"
 target_tokenizer = "yhavinga/gpt-neo-1.3B-dutch"
 export_dir = "en-nl-llama3-8b"
 
-# Step 1: Create an aligned corpus
 corpus = create_aligned_corpus(
     source_language="en",
     target_language="nl",
     source_tokenizer=source_model,
     target_tokenizer=target_tokenizer,
 )
-
-# Step 2: Align the corpus
-mapped_tokens_file = align(corpus, fast_align_path="fast_align")
-
-# Step 3: Map tokens between source and target
-tokenized_possible_translations, untokenized_possible_translations = map_tokens(mapped_tokens_file, source_model, target_tokenizer)
-
-# Step 4: Smooth the mapping
-smoothed_mapping = smooth_mapping(target_tokenizer, tokenized_possible_translations)
-
-# Step 5: Remap the model
-model = remap_model(source_model, target_tokenizer, smoothed_mapping, source_model)
-os.makedirs(export_dir, exist_ok=False)
-new_tokenizer = AutoTokenizer.from_pretrained(target_tokenizer)
-model.save_pretrained(export_dir)
-new_tokenizer.save_pretrained(export_dir)
 ```
 
-### How to Use It
+### Supported Languages and Datasets
+You can view the list of supported languages in the CCMATRIX_MAPPING section of transtokenizers.py.
 
-1. Run the trans-tokenization process using the provided script.
-2. This will create a new tokenizer and model, which can then be fine-tuned using ZenML.
-
-## 🔄 Fine-Tuning with ZenML
-
-ZenML is a cloud-native machine learning tool that simplifies the process of orchestrating and fine-tuning models in a scalable way. Here’s how to integrate your trans-tokenized model with ZenML for fine-tuning.
-
-### Setting Up ZenML
-
-```bash
-pip install zenml
-zenml init
+Select the dataset from the corpus_list:
+```
+corpus_list = ["allenai/nllb", ]
 ```
 
-### Fine-Tuning Workflow
-
-1. **Create a Pipeline**: Define a pipeline in ZenML that includes the steps for loading data, preprocessing, model training, and evaluation.
-2. **Integrate the Model**: Use the trans-tokenized model as the base for your fine-tuning pipeline.
-3. **Run the Pipeline**: Execute the pipeline on a cloud platform, making use of ZenML’s orchestration features.
-
-## 📜 Sample Fine-Tuning Script
-
-Below is a sample fine-tuning script using Hugging Face’s `transformers` library and ZenML, inspired by your uploaded script [test.py](58).
-
-```python
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from datasets import load_dataset
-from transformers import TrainingArguments, Trainer
-from zenml.pipelines import pipeline
-from zenml.steps import step
-
-@step
-def load_data():
-    dataset = load_dataset("zicsx/mC4-Hindi-Cleaned-3.0", split="train")
-    return dataset
-
-@step
-def tokenize_data(dataset, tokenizer):
-    def tokenize_function(examples):
-        return tokenizer(examples['text'], truncation=True, max_length=256)
-    return dataset.map(tokenize_function, batched=True)
-
-@pipeline
-def finetuning_pipeline(load_data, tokenize_data, train_model):
-    dataset = load_data()
-    tokenized_dataset = tokenize_data(dataset=dataset)
-    train_model(dataset=tokenized_dataset)
-
-# Define steps
-load_data = load_data()
-tokenize_data = tokenize_data(tokenizer=AutoTokenizer.from_pretrained("en-nl-llama3-8b"))
-train_model = Trainer(...)
-
-# Run the pipeline
-finetuning_pipeline(load_data=load_data, tokenize_data=tokenize_data, train_model=train_model).run()
+### Currently Supported Datasets:
+```
+open_subtitles
+allenai/nllb
 ```
 
-## 📚 Additional Resources
+### Running the Script
+After setting up the configurations, run the run.py script in your conda environment:
+```
+python run.py
+```
+This script will:
 
-- **ZenML Documentation**: [ZenML Docs](https://docs.zenml.io/)
-- **Trans-Tokenization Research Paper**: [Link to the PDF](#)
-- **Hugging Face Transformers**: [Transformers Docs](https://huggingface.co/transformers/)
-- **Sample Dataset**: [Download Dataset](#)
-- **Google Colab Notebook**: [Colab Link](#)
-- **Video Tutorial**: [YouTube Link](#)
+Import necessary functions from transtokenizers.py.
+Automatically iterate through the data to create the aligned corpus.
+Align tokens using Fast Align.
+Smooth and remap the model.
+The final output model will be saved in your specified export directory.
 
-## 🤝 Contributing
+### ⚠️ Storage Considerations
+If you are short on storage, you can stop the script after the dataset download begins. This will create a new folder with the partially downloaded dataset. Upon re-running the script, it will handle the edge case and continue from the next step.
 
-Feel free to contribute to this repository by opening issues or submitting pull requests. All contributions are welcome!
+### Troubleshooting
+If the token mapping reaches 100%, there may be an issue with your code. Check the Moses file and the TSV file generated after the process for potential errors.
 
-## 📄 License
+### Translation Performance
+We achieved a translation accuracy of 87% on the Hindi dataset. You can fine-tune this model further to achieve better results.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## 🎛️ Fine-Tuning
+Setting Up
+1. Create a new conda environment:
+    ```
+    conda create -n finetune-env python=3.10
+    conda activate finetune-env
+    pip install -r requirements.txt
+    ```
+2. Login to Hugging Face and Weights & Biases:
+   ```
+   huggingface-cli login
+   wandb login
+   ```
+#### Configurations in finetune.py:
+```
+BASE_MODEL_NAME = "subhrokomol/Meta-Llama-3-8B-Hindi"
+DATASET_NAME = "zicsx/mC4-Hindi-Cleaned-3.0"
+OUTPUT_DIR_NAME = "fine_tuned_llama"
+HF_MODEL_NAME = "subhrokomol/fine-tuned-llama-3-hindi"
+UPLOAD_TO_HF = True
+SAVE_FULL_MODEL = True
 
-This README file should give users everything they need to get started with trans-tokenization and fine-tuning in a cloud-native environment using ZenML and other tools.
+model = AutoModelForCausalLM.from_pretrained(
+    BASE_MODEL_NAME, device_map="auto", torch_dtype=torch.bfloat16
+)
+
+training_args = TrainingArguments( #chenage them as you prefer
+    output_dir=OUTPUT_DIR_NAME,
+    num_train_epochs=1,
+    per_device_train_batch_size=16,
+    gradient_accumulation_steps=2,
+    warmup_steps=500,
+    learning_rate=5e-4,
+    bf16=True,
+    logging_steps=50,
+    save_steps=1000,
+    eval_steps=500,
+    report_to="wandb",
+    run_name="llama-3-8b-finetuning",
+)
+```
+3. Start fine-tuning:
+    python finetune.py
+4. The final model will be uploaded to your Hugging Face repository.
+
+# Training Time Estimates for Dataset
+
+## Dataset Information
+- **Size**: 17 GB
+- **Number of Rows**: 4 Million
+
+## Model Specifications
+- **Parameters**: 8 Billion
+
+## Estimated Training Time
+
+| Dataset Size         | Model Parameters | Estimated Time |
+|----------------------|------------------|----------------|
+| 17 GB (3% of dataset) | 8B              | 6 hours        |
+| 17 GB (7% of dataset) | 8B              | 12 hours       |
+| 17 GB (50% of dataset)| 8B              | 40 hours       |
+
+**Note:** The estimated times are based on training with the specified model parameters and may vary depending on hardware and other factors.
+
+## ⏱️ Time Estimation
+3% Dataset: ~6 hours for 1 epoch
+7% Dataset: ~12 hours for 1 epoch
+50% Dataset: ~40 hours (approx)
+
+## Supported Tools
+
+| Tool                  | Link          |
+|-----------------------|---------------|
+| Axolotl               | [GitHub](https://github.com/axolotl) |
+| Hugging Face PEFT     | [GitHub](https://github.com/huggingface/peft) |
+| PyTorch Torchtune     | [GitHub](https://github.com/pytorch/torchtune) |
+
+
+🧠 Understanding Tokenization
+Training a BPE SentencePiece tokenizer is straightforward. You can use the following example to convert the Hugging Face format:
+```
+def convert_to_hf_format(output_path):
+    transformers.LlamaTokenizerFast(vocab_file=output_path+'.model').save_pretrained(output_path+'/')
+```
+Challenges
+Latin scripts tend to have a higher percentage of tokens compared to non-Latin scripts. This can affect translation accuracy.
+
+![newplot](https://github.com/user-attachments/assets/f02c70da-f162-40ae-8f28-b71cdb482f21)
+Image showing hindi and english tokenization with Llama 3 8B 
+https://huggingface.co/spaces/yenniejun/tokenizers-languages#median-token-length-for-openai-gpt4
+
+
+🌟 Contributing
+We welcome contributions from the community! Please read the Contributing Guidelines for more information.
+
+📜 License
+This project is licensed under the MIT License. See the LICENSE file for details.
+
