@@ -35,13 +35,14 @@ This guide covers:
 ### Clone the Repository
 
 
+```
 git clone https://github.com/FremyCompany/fast_align
 mkdir build
 cd build
 cmake ..
 make
 cd .. # return to the original folder
-
+```
 ### 2. Create a Conda Environment
 
 ```
