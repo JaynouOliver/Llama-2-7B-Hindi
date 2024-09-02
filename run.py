@@ -2,10 +2,10 @@ from project import create_aligned_corpus, align, map_tokens, smooth_mapping, re
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import os
 
-source_model = "meta-llama/Meta-Llama-3-8B"
+source_model = "allenai/open-instruct-llama2-sharegpt-7b"
 
-target_tokenizer = "meta-llama/Meta-Llama-3-8B"
-export_dir = "en-hi-llama3-8b"
+target_tokenizer = "subhrokomol/llama-2-7b-bnb-4bit-finetuned-hindi"
+export_dir = "llama-2-7B"
 
 corpus = create_aligned_corpus(
     source_language="en",
@@ -25,3 +25,14 @@ os.makedirs(export_dir, exist_ok=False)
 new_tokenizer = AutoTokenizer.from_pretrained(target_tokenizer)
 model.save_pretrained(export_dir)
 new_tokenizer.save_pretrained(export_dir)
+
+print(f"finished model creation to {export_dir}")
+# print(f"uploading to HF from {export_dir}")
+# #upload to HF models
+# output_model_name = export_dir
+# repo = hf_hub.create_repo(output_model_name, private=False)  # Set private=False if you want it to be public
+# hf_hub.upload_folder(
+#     folder_path=export_dir,
+#     path_in_repo='',  # Root of the repo
+#     repo_id=f"{hf_hub.whoami()['name']}/{output_model_name}"
+# )
