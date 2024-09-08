@@ -1,11 +1,11 @@
-from project import create_aligned_corpus, align, map_tokens, smooth_mapping, remap_model
+from transtokenizers import create_aligned_corpus, align, map_tokens, smooth_mapping, remap_model
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import os
 
-source_model = "allenai/open-instruct-llama2-sharegpt-7b"
+source_model = "meta-llama/Meta-Llama-3-8B-Instruct"
 
-target_tokenizer = "subhrokomol/llama-2-7b-bnb-4bit-finetuned-hindi"
-export_dir = "llama-2-7B"
+target_tokenizer = "hindi_tokenizer"
+export_dir = "new_model"
 
 corpus = create_aligned_corpus(
     source_language="en",
