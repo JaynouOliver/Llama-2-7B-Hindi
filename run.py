@@ -1,6 +1,7 @@
 from transtokenizers import create_aligned_corpus, align, map_tokens, smooth_mapping, remap_model
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import os
+import huggingface_hub as hf_hub
 
 source_model = "meta-llama/Meta-Llama-3-8B-Instruct"
 
