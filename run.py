@@ -3,7 +3,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import os
 import huggingface_hub as hf_hub
 
-source_model = "subhrokomol/unsloth-mistral7b-en"
+source_model = "mistralai/Mistral-7B-Instruct-v0.3"
 
 target_tokenizer = "subhrokomol/gpt-neo-1.3B-hindi"
 export_dir = "model_folder"
