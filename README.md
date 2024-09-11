@@ -109,6 +109,17 @@ We achieved a translation accuracy of 87% on the Hindi dataset. You can fine-tun
 
 
 ## 🎛️ Fine-Tuning
+
+Using Unsloth AI for PEFT 
+Xformers work with torch 2.3 and above and cuda 12.1 and above - 
+Refer to Unsloth documentation for installation - https://docs.unsloth.ai/get-started/installation/conda-install
+Head over to unsloth.ipynb to run the finetuning code - 
+
+You have to change the  code that handles the dataset according to your specific needs, rest of the code remains the same.
+Dataset used here for finetuning - https://huggingface.co/datasets/apurvagup/ultrachat_hindi_seamless
+
+If you want to pure PyTorch, Huggingface PEFT use
+using fame.py
 Setting Up
 1. Create a new conda environment:
     ```
@@ -186,7 +197,7 @@ training_args = TrainingArguments( #chenage them as you prefer
 | PyTorch Torchtune     | [GitHub](https://github.com/pytorch/torchtune) |
 
 
-🧠 Understanding Tokenization
+### 🧠 Understanding Tokenization
 Training a BPE SentencePiece tokenizer is straightforward. You can use the following example to convert the Hugging Face format:
 ```
 def convert_to_hf_format(output_path):
@@ -198,6 +209,22 @@ Latin scripts tend to have a higher percentage of tokens compared to non-Latin s
 ![newplot](https://github.com/user-attachments/assets/f02c70da-f162-40ae-8f28-b71cdb482f21)
 Image showing hindi and english tokenization with Llama 3 8B 
 https://huggingface.co/spaces/yenniejun/tokenizers-languages#median-token-length-for-openai-gpt4
+
+### 🧠 Building a tokenizer for Hindi - 
+
+#### Training using HuggingFace Tokenizer
+use ```train_tokenizer/train_tokenizer.py``` for training directly with HuggingFace tokenizers on ByteLevelBPETokenizer on GPT-Neo Model (GPTNeoForCausalLM)
+
+This code uses a wikimedia/wikipedia dataset from huggingface to train on Hindi and has the model is deployed on 
+https://huggingface.co/subhrokomol/gpt-neo-1.3B-hindi
+
+#### Training using SPM tokenizer
+Use ``` train_tokenizer/train_spm_tokenizer.py``` to train using spm tokenizer. Head over to https://github.com/google/sentencepiece for Build and install SentencePiece command line tools from C++ source
+and run the python file. (You need a dataset text file that contains half of your ```target language``` and ```source language``` .
+
+## Benchmarking 😎
+I used https://github.com/shreyash321/Hindi_Benchmark_dataset for benchmarking the both ```subhrokomol/Mistral-7B-Instruct-v0.3-transtokenized``` and ``` mistralai/Mistral-7B-Instruct-v0.3``` for calculating Perplexity score.
+https://github.com/ray-project/llmperf is also a good alternative
 
 
 🌟 Contributing
