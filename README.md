@@ -1,6 +1,6 @@
-# 🚀 Llama-3 Trans-Tokenization and Fine-Tuning Guide
+# 🚀 Mistral 7B-Instruct Trans-Tokenization and Fine-Tuning Guide
 
-This repository provides a comprehensive guide to trans-tokenization and fine-tuning Llama-3 models. The primary objective is to achieve optimal performance in translating and training large language models (LLMs) across different languages.
+This repository provides a comprehensive guide to trans-tokenization and fine-tuning Mistral-7B models. The primary objective is to achieve optimal performance in translating and training large language models (LLMs) across different languages.
 
 ---
 
@@ -25,7 +25,7 @@ This repository provides a comprehensive guide to trans-tokenization and fine-tu
 This guide covers:
 1. Setting up the base model and tokenizer.
 2. Implementing trans-tokenization.
-3. Fine-tuning the Llama-3 model.
+3. Fine-tuning the Mistral7B-model.
 4. Understanding tokenization challenges with Latin and non-Latin scripts.
 
 ---
@@ -54,8 +54,14 @@ pip install -r requirements.txt
 ## 🔄 Trans-Tokenization
 To perform trans-tokenization, you will need two key files:
 
+Process of transtokenizatoin - 
+Use a Source Language Finetuned Model (eg - mistralai/Mistral-7B-Instruct-v0.3) (source langauge - english)
+Transtokenize it using a custom target language trained tokenizer gives you the  - Resulting model (subhrokomol/hindi2) (target language - Hindi)
+
+```
 transtokenization.py
 run.py
+```
 Example Setup in run.py:
 
 ```
